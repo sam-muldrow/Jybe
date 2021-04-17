@@ -89,13 +89,21 @@ firebase.analytics();
       // ...
     }
   });
-  document.getElementById("createJybe").addEventListener("click", getInputData);
+  document.getElementById("createJybeText").addEventListener("click", getInputDataText);
+  document.getElementById("createJybeLink").addEventListener("click", getInputDataLink);
 
-  function getInputData() {
-    var jybeText = document.getElementById("jybeInput").value;
+  function getInputDataText() {
+    var jybeText = document.getElementById("jybeInputText").value;
     writeUserData(jybeText);
-    document.getElementById("jybeInput").value = "";
+    document.getElementById("jybeInputText").value = "";
   }
+
+  function getInputDataLink() {
+    var jybeText = document.getElementById("jybeInputLink").value;
+    writeUserDataLink(jybeText);
+    document.getElementById("jybeInputLink").value = "";
+  }
+
 
 // Write a Jybe to the databse
 function writeUserData(jybeText) {
@@ -120,6 +128,28 @@ function writeUserData(jybeText) {
   }
 
 
+// Write Link Jybe to database
+function writeUserDataLink(jybeText) {
+  var user = firebase.auth().currentUser;
+  var userId = user.uid;
+  var db = firebase.firestore()
+  var jybeRef = db.collection("users").doc(userId);
+  if (user) {
+      date = Date.now();
+      betterDate = new Date().toLocaleString();
+      var jybeObject = {
+          "jybeText": jybeText,
+          "jybeType": "linkObject",
+          "Time": betterDate,
+      }
+      jybeRef.update({
+          jybes: firebase.firestore.FieldValue.arrayUnion(jybeObject)
+      }, { merge: true });
+  } else {
+  // No user is signed in.
+  }
+}
+
 
   // Show Our Jybes
   function showJybes(jybeObject) {
@@ -127,7 +157,12 @@ function writeUserData(jybeText) {
     jybeArray = jybeObject.jybes;
     for (let i = jybeArray.length - 1; i >= 0; i--) {
       var jybe = jybeArray[i];
-      document.getElementById("jybes").innerHTML += jybe.Time + " || " + jybe.jybeText + "<br></br>";
+      if(jybe.jybeType == "textObject"){
+        document.getElementById("jybes").innerHTML += jybe.Time + " || " + jybe.jybeText + "<br></br>";
+      } else if (jybe.jybeType == "linkObject") {
+        document.getElementById("jybes").innerHTML += jybe.Time + " || <a href='"+ jybe.jybeText +"'>" + jybe.jybeText + "</a> <br></br>";
+      }
+
       
     }
   }
