@@ -14,6 +14,8 @@
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
+
+
   var ui = new firebaseui.auth.AuthUI(firebase.auth());
   var uiConfig = {
     callbacks: {
@@ -55,6 +57,7 @@ firebase.analytics();
       var user = firebase.auth().currentUser;
       var uid = user.uid
       var db = firebase.firestore();
+      
   
       var docRef = db.collection("users").doc(uid);
   
@@ -91,6 +94,12 @@ firebase.analytics();
   });
   document.getElementById("createJybeText").addEventListener("click", getInputDataText);
   document.getElementById("createJybeLink").addEventListener("click", getInputDataLink);
+  document.getElementById("createJybeFile").addEventListener("click", getInputDataFile);
+
+  function getInputDataFile() {
+    jybeFiles = document.getElementById("files").files;
+    writeUserDataFile(jybeFiles);
+  }
 
   function getInputDataText() {
     var jybeText = document.getElementById("jybeInputText").value;
@@ -105,6 +114,36 @@ firebase.analytics();
   }
 
 
+function writeUserDataFile(jybeFiles) {
+  var user = firebase.auth().currentUser;
+  var userId = user.uid;
+  var db = firebase.firestore();
+  var storage = firebase.storage().ref();
+  var jybeRef = db.collection("users").doc(userId);
+  if (user) {
+      date = Date.now();
+      betterDate = new Date().toLocaleString();
+      var storageRef = storage.child('/users/' + userId + '/' + date);
+      var jybeObject = {
+          "jybeText": "",
+          "jybeType": "fileObject",
+          "Time": betterDate,
+          "exactTime": date,
+      }
+      jybeRef.update({
+          jybes: firebase.firestore.FieldValue.arrayUnion(jybeObject)
+      }, { merge: true });
+      console.log(files, files.type, files.length);
+      for (let i = 0; i < jybeFiles.length; i++) {
+        file = files[i];
+        storageRef.put(file).then((snapshot) => {
+          console.log('Uploaded a blob or file!');
+        });
+      }
+  } else {
+  // No user is signed in.
+  }
+}
 // Write a Jybe to the databse
 function writeUserData(jybeText) {
     var user = firebase.auth().currentUser;
@@ -129,7 +168,7 @@ function writeUserData(jybeText) {
 
 
 // Write Link Jybe to database
-function writeUserDataLink(jybeText) {
+function writeUserDataLink(jybeLink) {
   var user = firebase.auth().currentUser;
   var userId = user.uid;
   var db = firebase.firestore()
@@ -138,7 +177,7 @@ function writeUserDataLink(jybeText) {
       date = Date.now();
       betterDate = new Date().toLocaleString();
       var jybeObject = {
-          "jybeText": jybeText,
+          "jybeText": jybeLink,
           "jybeType": "linkObject",
           "Time": betterDate,
       }
