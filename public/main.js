@@ -112,6 +112,33 @@ firebase.analytics();
     writeUserDataLink(jybeText);
     document.getElementById("jybeInputLink").value = "";
   }
+  function forceDownload(blob, filename) {
+    var a = document.createElement('a');
+    a.download = filename;
+    a.href = blob;
+    // For Firefox https://stackoverflow.com/a/32226068
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  
+  // Current blob size limit is around 500MB for browsers
+  function downloadResource(url, filename) {
+    if (!filename) filename = url.split('\\').pop().split('/').pop();
+    fetch(url, {
+        headers: new Headers({
+          'Origin': location.origin
+        }),
+        mode: 'cors'
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        let blobUrl = window.URL.createObjectURL(blob);
+        forceDownload(blobUrl, filename);
+      })
+      .catch(e => console.error(e));
+  }
+  
 
 
 function writeUserDataFile(jybeFiles) {
@@ -123,7 +150,7 @@ function writeUserDataFile(jybeFiles) {
   if (user) {
       date = Date.now();
       betterDate = new Date().toLocaleString();
-      var storageRef = storage.child('/users/' + userId + '/' + date);
+      var storageRef = storage.child('/users/' + userId + '/' + date + '/');
       var jybeObject = {
           "jybeText": "",
           "jybeType": "fileObject",
@@ -134,8 +161,10 @@ function writeUserDataFile(jybeFiles) {
           jybes: firebase.firestore.FieldValue.arrayUnion(jybeObject)
       }, { merge: true });
       console.log(files, files.type, files.length);
+      console.log(jybeFiles[0].name);
       for (let i = 0; i < jybeFiles.length; i++) {
-        file = files[i];
+        file = jybeFiles[i];
+        var storageRef = storage.child('/users/' + userId + '/' + date + '/' + file.name);
         storageRef.put(file).then((snapshot) => {
           console.log('Uploaded a blob or file!');
         });
@@ -191,7 +220,10 @@ function writeUserDataLink(jybeLink) {
 
 
   // Show Our Jybes
-  function showJybes(jybeObject) {
+  async function showJybes(jybeObject) {
+    var user = firebase.auth().currentUser;
+    var userId = user.uid;
+    var storage = firebase.storage().ref();
     document.getElementById("jybes").innerHTML = "";
     jybeArray = jybeObject.jybes;
     for (let i = jybeArray.length - 1; i >= 0; i--) {
@@ -200,8 +232,24 @@ function writeUserDataLink(jybeLink) {
         document.getElementById("jybes").innerHTML += jybe.Time + " || " + jybe.jybeText + "<br></br>";
       } else if (jybe.jybeType == "linkObject") {
         document.getElementById("jybes").innerHTML += jybe.Time + " || <a href='"+ jybe.jybeText +"'>" + jybe.jybeText + "</a> <br></br>";
+      } else if (jybe.jybeType == "fileObject") {
+        var storageRef = storage.child('/users/' + userId + '/' + jybe.exactTime + '/');
+        var displayString = jybe.Time + " || Jybe Files: ";
+        await storageRef.listAll()
+        .then(async (res) => {
+          res.items.forEach(async (itemRef) => {
+            var downloadURL = await itemRef.getDownloadURL();
+            console.log(downloadURL);
+            displayString += "<a href='" + downloadURL + "' download='" + itemRef.name + "'>" + itemRef.name + "</a> ";
+            document.getElementById("jybes").innerHTML += displayString + "<br></br>";
+          });
+        }).catch((error) => {
+          // Uh-oh, an error occurred!
+        });
+        
       }
 
       
     }
   }
+
