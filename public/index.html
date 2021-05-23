@@ -11,7 +11,8 @@
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.css" />
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
-
+    <!-- Jybe CSS -->
+    <link rel="stylesheet" href="style.css"/>
     <!-- TODO: Add SDKs for Firebase products that you want to use
          https://firebase.google.com/docs/web/setup#available-libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-analytics.js"></script>
@@ -24,16 +25,53 @@
     
   </head>
   <body>
+
+    <div class="text-center">
+     
+    </div>
+    <div class="navContainer">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <a href="./index.html">
+          <img src="./images/jybeLogoBlack.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        </a>
+        <a href="./index.html">
+          <h3 style="color: white">&nbsp;<b>Jybe</b></h3>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="./about.html">About</a>
+            <a class="nav-item nav-link" href="https://github.com/sam-muldrow/Jybe/">Source</a>
+          </div>
+        </div>
+      </nav>
+    </div>
     <div class="container">
+      
       <!-- What gets show when user needs to sign in -->
       <div id="signIn">
-        <h1>Sign In</h1>
+        <div class="text-center">
+          <h1>Welcome To Jybe!</h1>
+          <h2>The quick and easy file transfer program.</h2>
+          <p>*Currently In Beta*</p>
+          <h1>💻 📱 🖥️</h1>
+          <h3>Swap files, photos, and links between all your devices.</h3>
+          <br>
+          <h2>Sign In To Get Started</h2>
+        </div>
+
+            
+
+        
         <div id="firebaseui-auth-container"></div>
         <div id="loader">Loading...</div>
       </div>
       <!-- After they have logged in: -->
       <div id="mainJybe" style="display: none;">
         <h1 class="text-center">Create A New Jybe</h1>
+        <p class="text-center">*If something doesn't show up right away try refreshing*</p>
         <!--Jybe Menu -->
         <div class="row">
           <div class="col-sm text-center">

@@ -194,7 +194,12 @@ function writeUserData(jybeText) {
     // No user is signed in.
     }
   }
-
+  //Gets a clickable link
+  const getClickableLink = link => {
+    return link.startsWith("http://") || link.startsWith("https://") ?
+      link
+      : `http://${link}`;
+  };
 
 // Write Link Jybe to database
 function writeUserDataLink(jybeLink) {
@@ -231,7 +236,8 @@ function writeUserDataLink(jybeLink) {
       if(jybe.jybeType == "textObject"){
         document.getElementById("jybes").innerHTML += jybe.Time + " || " + jybe.jybeText + "<br></br>";
       } else if (jybe.jybeType == "linkObject") {
-        document.getElementById("jybes").innerHTML += jybe.Time + " || <a href='"+ jybe.jybeText +"'>" + jybe.jybeText + "</a> <br></br>";
+        var clickableLink = getClickableLink(jybe.jybeText);
+        document.getElementById("jybes").innerHTML += jybe.Time + " || <a  href="+clickableLink+">" + jybe.jybeText + "</a> <br></br>";
       } else if (jybe.jybeType == "fileObject") {
         var storageRef = storage.child('/users/' + userId + '/' + jybe.exactTime + '/');
         var displayString = jybe.Time + " || Jybe Files: ";
