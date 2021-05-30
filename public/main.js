@@ -34,7 +34,7 @@ firebase.analytics();
       }
     },
     // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
-    signInFlow: 'popup',
+    signInFlow: 'redirect',
     signInOptions: [
       // Leave the lines as is for the providers you want to offer your users.
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -63,10 +63,8 @@ firebase.analytics();
   
       docRef.get().then(function(doc) {
           if (doc.exists) {
-              console.log("Document data:", doc.data());
               firebase.firestore().collection("users").doc(uid)
               .onSnapshot((doc) => {
-                  console.log("Current data: ", doc.data());
                   showJybes(doc.data());
               });
   
@@ -75,7 +73,7 @@ firebase.analytics();
                 "jybes": [],
               })
               .then(function() {
-                  console.log("Document successfully written!");
+                // success!
               })
               .catch(function(error) {
                   console.error("Error writing document: ", error);
@@ -138,7 +136,16 @@ firebase.analytics();
       })
       .catch(e => console.error(e));
   }
-  
+
+// Sign User Out
+function signUserOut() {
+  firebase.auth().signOut().then(() => {
+    console.log("Signed Out")
+    location.reload()
+  }).catch((error) => {
+    // An error happened.
+  });
+}
 
 
 function writeUserDataFile(jybeFiles) {
@@ -160,8 +167,6 @@ function writeUserDataFile(jybeFiles) {
       jybeRef.update({
           jybes: firebase.firestore.FieldValue.arrayUnion(jybeObject)
       }, { merge: true });
-      console.log(files, files.type, files.length);
-      console.log(jybeFiles[0].name);
       for (let i = 0; i < jybeFiles.length; i++) {
         file = jybeFiles[i];
         var storageRef = storage.child('/users/' + userId + '/' + date + '/' + file.name);
@@ -245,7 +250,6 @@ function writeUserDataLink(jybeLink) {
         .then(async (res) => {
           res.items.forEach(async (itemRef) => {
             var downloadURL = await itemRef.getDownloadURL();
-            console.log(downloadURL);
             displayString += "<a href='" + downloadURL + "' download='" + itemRef.name + "'>" + itemRef.name + "</a> ";
             document.getElementById("jybes").innerHTML += displayString + "<br></br>";
           });
